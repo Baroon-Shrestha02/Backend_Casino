@@ -16,6 +16,7 @@ const allowedOrigins = [
   "https://casinotrainingnepal.com",
   "https://www.casinotrainingnepal.com",
   "http://localhost:5173",
+  "https://frontend-casino-five.vercel.app",
 ];
 
 app.use(
