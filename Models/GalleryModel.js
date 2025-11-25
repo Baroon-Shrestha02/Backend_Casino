@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const GallerySchema = new mongoose.Schema(
   {
     alt: { type: String, required: true, unique: true, trim: true },
-    profImg: [
+    image: [
       {
         public_id: {
           type: String,

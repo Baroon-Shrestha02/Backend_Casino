@@ -6,6 +6,7 @@ const mail = require("./Routes/MailRoutes");
 const test = require("./Routes/TestimonialsRoute");
 const auth = require("./Routes/AuthRoutes");
 const career = require("./Routes/CareerRoutes");
+const gallery = require("./Routes/GalleryRoutes");
 const cookieParser = require("cookie-parser");
 const { database } = require("./Database/database");
 
@@ -54,5 +55,6 @@ app.use("/casino", mail);
 app.use("/casino", test);
 app.use("/casino", auth);
 app.use("/casino", career);
+app.use("/casino", gallery);
 
 module.exports = app;

@@ -117,8 +117,8 @@ const refreshAccessToken = async (req, res) => {
 
         res.cookie("accessToken", newAccessToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "strict",
+          secure: true,
+          sameSite: "none",
           maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
 
