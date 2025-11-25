@@ -53,7 +53,7 @@ const adminLogin = async (req, res) => {
     // Set cookies
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: ture, // change to true in production (with HTTPS)
+      secure: true, // change to true in production (with HTTPS)
       sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
