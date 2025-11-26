@@ -14,6 +14,7 @@ const allowedExtensions = [
   "image/jpg",
   "image/webp",
   "image/avif",
+  "image/heic",
 ];
 
 const uploadImages = async (files) => {
