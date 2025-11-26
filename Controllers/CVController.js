@@ -1,116 +1,48 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
+const fs = require("fs");
 
 const sendJobApplicationMail = async (req, res) => {
   try {
-    const { name, email, phone, message, course, jobTitle, jobId } = req.body;
-
-    // Files uploaded through express-fileupload
+    const { name, email, phone, message, jobTitle, jobId, course } = req.body;
     const files = req.files ? Object.values(req.files) : [];
 
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      auth: {
-        user: "casinotrainingnepal@gmail.com",
-        pass: "xxtrcizhjdjjbcbs",
-      },
-    });
+    const resendFiles = files
+      .map((file) => {
+        if (!file.tempFilePath) return null;
+        return {
+          filename: file.name,
+          content: fs.readFileSync(file.tempFilePath).toString("base64"),
+        };
+      })
+      .filter(Boolean);
 
-    await transporter.sendMail({
-      from: email,
+    const emailBody = `
+      <h2>New Job Application Received</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Job Title:</strong> ${jobTitle || "Not Given"}</p>
+      <p><strong>Job ID:</strong> ${jobId || "Not Given"}</p>
+      <p><strong>Course:</strong> ${course || "Not Given"}</p>
+      <p><strong>Message:</strong><br>${message}</p>
+      <p><em>Submitted from your website career page.</em></p>
+    `;
+
+    await resend.emails.send({
+      from: "Casino Nepal <test@resend.dev>",
       to: "casinotrainingnepal@gmail.com",
-      subject: `New Job Application – ${jobTitle}`,
-      html: `
-        <h2>New Job Application Received</h2>
-
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        
-
-
-<p><strong>Job Title:</strong> ${jobTitle ? jobTitle : "Not Given"}</p>
-
-<p><strong>Job ID:</strong> ${jobId ? jobId : "Not Given"}</p>
-
-
-        <p><strong>Message:</strong><br>${message}</p>
-        
-
-
-        <p><em>This application was submitted from your website career page.</em></p>
-      `,
-
-      // Attach all uploaded files
-      attachments: files.map((file) => ({
-        filename: file.name,
-        path: file.tempFilePath,
-      })),
+      reply_to: email,
+      subject: `New Job Application – ${jobTitle || "Not Given"}`,
+      html: emailBody,
+      attachments: resendFiles.length > 0 ? resendFiles : undefined,
     });
 
-    res.json({
-      success: true,
-      message: "Job application sent successfully!",
-    });
+    res.json({ success: true, message: "Job application sent successfully!" });
   } catch (error) {
     console.error("Mail Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error sending job application email",
-    });
+    res.status(500).json({ success: false, message: "Error sending email" });
   }
 };
 
-const sendCV = async (req, res) => {
-  try {
-    const { name, email, phone, message, course } = req.body;
-
-    // Files uploaded through express-fileupload
-    const files = req.files ? Object.values(req.files) : [];
-
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      auth: {
-        user: "casinotrainingnepal@gmail.com",
-        pass: "xxtrcizhjdjjbcbs",
-      },
-    });
-
-    await transporter.sendMail({
-      from: email,
-      to: "casinotrainingnepal@gmail.com",
-      subject: `New CV Recevied`,
-      html: `
-        <h2>New CV Received</h2>
-
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        
-     <p><strong>Course:</strong> ${course ? course : "Not Given"}</p>
-
-        <p><strong>Message:</strong><br>${message}</p>
-        
-        <p><em>This CV was submitted from your website career page.</em></p>
-      `,
-
-      // Attach all uploaded files
-      attachments: files.map((file) => ({
-        filename: file.name,
-        path: file.tempFilePath,
-      })),
-    });
-
-    res.json({
-      success: true,
-      message: "CV sent successfully!",
-    });
-  } catch (error) {
-    console.error("Mail Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error sending job application email",
-    });
-  }
-};
-
-module.exports = { sendJobApplicationMail, sendCV };
+module.exports = { sendJobApplicationMail };
